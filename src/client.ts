@@ -575,6 +575,12 @@ export class SubscriptionClient {
         break;
 
       case MessageTypes.GQL_DATA:
+        //LX: If we received data we clear the counter
+        if (this.checkConnectionIntervalId) {
+          clearInterval(this.checkConnectionIntervalId);
+          this.checkConnection();
+        }
+        this.checkConnectionIntervalId = setInterval(this.checkConnection.bind(this), this.wsTimeout);
         const parsedPayload = !parsedMessage.payload.errors ?
           parsedMessage.payload : {...parsedMessage.payload, errors: this.formatErrors(parsedMessage.payload.errors)};
         this.operations[opId].handler(null, parsedPayload);
