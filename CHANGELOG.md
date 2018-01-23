@@ -2,6 +2,7 @@
 
 ### vNEXT
 - fix shallow cloning on contexts which are classes
+- fix Graphcool server support - use data received connection_ack also as Keep alive
 
 ### 0.9.5
 - docs(setup): Fix dead link to subscriptions-to-schema
