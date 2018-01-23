@@ -556,6 +556,18 @@ export class SubscriptionClient {
       case MessageTypes.GQL_CONNECTION_ACK:
         this.eventEmitter.emit(this.reconnecting ? 'reconnected' : 'connected');
         this.reconnecting = false;
+        //LX: If we received data we clear the counter
+        const firstKA = typeof this.wasKeepAliveReceived === 'undefined';
+        this.wasKeepAliveReceived = true;
+
+        if (firstKA) {
+          this.checkConnection();
+        }
+        if (this.checkConnectionIntervalId) {
+          clearInterval(this.checkConnectionIntervalId);
+          this.checkConnection();
+        }
+        this.checkConnectionIntervalId = setInterval(this.checkConnection.bind(this), this.wsTimeout);
         this.backoff.reset();
         this.maxConnectTimeGenerator.reset();
 
@@ -576,6 +588,12 @@ export class SubscriptionClient {
 
       case MessageTypes.GQL_DATA:
         //LX: If we received data we clear the counter
+        const firstKA = typeof this.wasKeepAliveReceived === 'undefined';
+        this.wasKeepAliveReceived = true;
+
+        if (firstKA) {
+          this.checkConnection();
+        }
         if (this.checkConnectionIntervalId) {
           clearInterval(this.checkConnectionIntervalId);
           this.checkConnection();
